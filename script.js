@@ -51,7 +51,6 @@ async function getRepositories(project) {
   };
   let repos = await axios.get(url, config);
   log(`got ${repos.data.count} repos in ${project} project`);
-  // log(repos.data.value);
   return repos.data.value.filter(r => r.isDisabled == false && r.defaultBranch).map((p) => {
     return {
       name: p.name,
@@ -115,7 +114,7 @@ async function generateGitCommits(commits) {
     i++;
   }
   log(`committed all ${commits.length} commits`);
-  await execAsync(`cd ${COMMITS_FOLDER_PATH} && git push origin master`);
+  await execAsync(`cd ${COMMITS_FOLDER_PATH} && git push origin main`);
 
 }
 
