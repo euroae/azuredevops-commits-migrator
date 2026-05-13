@@ -64,7 +64,7 @@ async function getCommits(project, repo, author, branch) {
   let pageSize = 100;
   let allCommits = [];
   let count = 0;
-  let fromDate = moment().subtract(process.env.DAYS_LOOKUP ?? 1, 'days').format('MM/DD/yyyy').toString();
+  let fromDate = moment().subtract(process.env.DAYS_LOOKUP ?? 1, 'days').format('MM/DD/YYYY').toString();
 
   do {
     log(`getting page ${currentPage} commits in ${project} project ${repo} repo`);
@@ -100,10 +100,17 @@ async function getCommits(project, repo, author, branch) {
 
 async function generateGitCommits(commits) {
   if (!commits.length) return;
+  const readmePath = `${COMMITS_FOLDER_PATH}/README.md`;
+  const existing = fs.existsSync(readmePath) ? fs.readFileSync(readmePath, 'utf8') : '';
+  commits = commits.filter(c => !existing.includes(c.remoteUrl));
+  if (!commits.length) {
+    log('no new commits to add');
+    return;
+  }
   let i = 1;
   log("commiting to: ", COMMITS_FOLDER_PATH);
   for (const commit of commits) {
-    let formattedDate = moment(commit.creationDate).format('YYYY-MM-DD HH:MM:SS');
+    let formattedDate = moment(commit.creationDate).format('YYYY-MM-DD HH:mm:ss');
     const text = `### _${formattedDate}_ **${commit.comment}** ([link](${commit.remoteUrl}))\n\n`
     fs.appendFileSync(`${COMMITS_FOLDER_PATH}/README.md`, text, { flag: 'a+' });
     await execAsync(`cd ${COMMITS_FOLDER_PATH} && git add README.md`);
