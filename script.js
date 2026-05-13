@@ -114,9 +114,9 @@ async function generateGitCommits(commits) {
     const text = `### _${formattedDate}_ **${commit.comment}** ([link](${commit.remoteUrl}))\n\n`
     fs.appendFileSync(`${COMMITS_FOLDER_PATH}/README.md`, text, { flag: 'a+' });
     await execAsync(`cd ${COMMITS_FOLDER_PATH} && git add README.md`);
-    await execAsync(`set GIT_COMMITTER_DATE='${formattedDate}'`);
-    await execAsync(`set GIT_AUTHOR_DATE='${formattedDate}'`);
-    await execAsync(`cd ${COMMITS_FOLDER_PATH} && git commit -m "${commit.comment}" --date "${formattedDate}"`);
+    await execAsync(`cd ${COMMITS_FOLDER_PATH} && git commit -m "${commit.comment}" --date "${formattedDate}"`, {
+      env: { ...process.env, GIT_COMMITTER_DATE: formattedDate }
+    });
     console.log(`${i}/${commits.length}`);
     i++;
   }
